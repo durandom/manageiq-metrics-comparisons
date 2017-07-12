@@ -104,7 +104,7 @@ end
 
 
 describe MetricStore do
-  it 'downsamples 15 minute granularity data to 1 hour buckets' do
+  it 'downsample 15 minute granularity data to 1 hour buckets' do
     # requests 2 hours range in 1hr bucket duration
     buckets = store.client.metrics.gauges.get_data_by_tags({resource_type: 'Vm', resource_id: vm_1.id, name: 'cpu'},
                                                            starts: starts.to_i*1000,
@@ -115,7 +115,7 @@ describe MetricStore do
     expect(buckets).to all(include('samples' => 4))
   end
 
-  it 'upsamples 15 minute granularity data to 5 minute buckets with interpolated data' do
+  it 'upsample 15 minute granularity data to 5 minute buckets with interpolated data' do
     pending("FAILS: returns empty buckets and buckets with 1 sample")
     # requests 20 minute range in 5 mn bucket duration
     buckets = store.client.metrics.gauges.get_data_by_tags({resource_type: 'Vm', resource_id: vm_1.id, name: 'cpu'},
@@ -126,7 +126,7 @@ describe MetricStore do
     expect(buckets).to all(include('samples' => 1))
   end
 
-  it 'aggregates vms on a host' do
+  it 'aggregate vm data to a host' do
     buckets = store.client.metrics.gauges.get_data_by_tags({host: host_1.id, name: 'cpu'},
                                                               starts: starts.to_i*1000,
                                                               ends: (starts+1.hours).to_i*1000,
@@ -137,18 +137,18 @@ describe MetricStore do
     expect(buckets).to all(include('samples' => 2))
   end
 
-  it 'graphs the number of vms running on a host' do
+  it 'graph the number of vms running on a host' do
     pending("FAILS: There is currently no API for fetching bucket data points across multiple availability metrics.")
     metrics = store.client.metrics.avail.query({host: host_1.id, name: 'power'})
-    ap buckets = store.client.metrics.avail.get_data_by_tags({host: host_1.id, name: 'power'},
+    buckets = store.client.metrics.avail.get_data_by_tags({host: host_1.id, name: 'power'},
                                                              starts: starts.to_i*1000,
                                                              ends: (starts+1.hours).to_i*1000,
                                                              bucketDuration: '15mn')
     expect(buckets).not_to be_empty
   end
 
-  it 'graphs the max of cpu usage of all vms' do
-    ap buckets = store.client.metrics.gauges.get_data_by_tags({resource_type: 'Vm', name: 'cpu'},
+  it 'graph the max of cpu usage of all vms' do
+    buckets = store.client.metrics.gauges.get_data_by_tags({resource_type: 'Vm', name: 'cpu'},
                                                               starts: (ends - 360.days).to_i * 1000,
                                                               ends: ends.to_i * 1000,
                                                               # works, but is missing in ruby client
