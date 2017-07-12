@@ -1,0 +1,60 @@
+#
+# Copyright 2016 Red Hat, Inc. and/or its affiliates
+# and other contributors as indicated by the @author tags.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+hawkfly-domain:
+  image: "pilhuhn/hawkfly-domain:latest"
+  links:
+    - hawkular
+hawkfly:
+  image: "pilhuhn/hawkfly:latest"
+  links:
+    - hawkular
+# The hawkular-server
+hawkular:
+  image: "hawkular/hawkular-services:devel"
+  ports:
+    - "8080:8080"
+    - "8443:8443"
+    - "9990:9990"
+    - "8787:8787"
+  volumes:
+    - /tmp/opt/hawkular/server:/opt/data
+  links:
+    - myCassandra
+  environment:
+    - HAWKULAR_BACKEND=remote
+    - CASSANDRA_NODES=myCassandra
+    - HAWKULAR_USER=jdoe
+    - HAWKULAR_PASSWORD=password
+    - HAWKULAR_AGENT_ENABLE=true
+    - HAWKULAR_METRICS_TTL=17
+# The used Cassandra container
+myCassandra:
+  image: cassandra:3.0.9
+  environment:
+    - CASSANDRA_START_RPC=true
+#    - CASSANDRA_CLUSTER_NAME=hawkular
+  volumes:
+    - /tmp/opt/hawkular/cassandra:/var/lib/cassandra
+#  ports:
+#    - "7000:7000"
+grafana:
+  image: hawkular/hawkular-grafana-datasource:latest
+  ports:
+    - "3030:3000"
+  links:
+    - hawkular
