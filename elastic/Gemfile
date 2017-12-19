@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'hawkular-client'
+gem 'elasticsearch'
+gem 'elasticsearch-dsl'
 gem 'awesome_print'
 gem 'byebug'
 gem 'activesupport'
